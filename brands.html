@@ -1,0 +1,665 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Marcas | Sillage</title>
+  
+  <link rel="icon" href="perfume.ico">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root{
+      --bg:#0b0b0b;
+      --card:#0f0f0f;
+      --accent:#e50914; /* rojo */
+      --muted:#b3b3b3;
+      --white:#ffffff;
+      --glass: rgba(255,255,255,0.04);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter, system-ui, Arial, sans-serif;
+      background:linear-gradient(180deg,var(--bg),#070707);
+      color:var(--white);
+      min-height: 100vh;
+      transition: background-color 0.4s ease, color 0.4s ease;
+    }
+
+    /* ====== NAVBAR ====== */
+    .nav{position:fixed;top:0;left:0;right:0;height:64px;display:flex;align-items:center;gap:20px;padding:0 28px;background:linear-gradient(180deg, rgba(11,11,11,0.9), transparent);z-index:40}
+    .logo{font-weight:800;letter-spacing:1px;color:var(--white);font-size:20px}
+    .nav-links{display:flex;gap:18px;align-items:center;margin-left:20px}
+    .nav-links a{color:var(--muted);text-decoration:none;font-weight:600;padding:8px 6px;border-radius:6px;transition:all .18s}
+    .nav-links a:hover{color:var(--white);background:rgba(255,255,255,0.03)}
+    .nav-links a.active{color:var(--accent);}
+    .nav-right{margin-left:auto;display:flex;gap:12px;align-items:center}
+    .search-input{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;color:var(--white);width:220px;transition:all .2s}
+    .search-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 12px rgba(229,9,20,0.12)}
+    .icon-btn{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--card);border:1px solid rgba(255,255,255,0.02);cursor:pointer}
+
+    /* ====== HERO / SLIDER ====== */
+    .hero{height: 400px;padding:90px 40px 40px;display:flex;align-items:flex-end;gap:28px;position:relative}
+    .hero .backdrop{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(0.35) blur(0.8px);z-index:-1;transition:background-image .6s ease}
+    .hero-content{max-width:760px}
+    .hero h1{font-size:62px;margin:0 0 12px;letter-spacing:2px}
+    .meta{color:var(--muted);margin-bottom:18px}
+    .hero p{color:var(--muted);max-width:680px;line-height:1.45}
+    .hero-actions{margin-top:18px;display:flex;gap:12px}
+    .btn{padding:12px 18px;border-radius:8px;font-weight:700;cursor:pointer;border:none; }
+    .btn-play{background:var(--white);color:#000}
+    .btn-add{background:transparent;border:1px solid rgba(255,255,255,0.09);color:var(--white)}
+
+    /* slider dots */
+    .dots{position:absolute;left:50%;transform:translateX(-50%);bottom:18px;display:flex;gap:8px}
+    .dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.12);cursor:pointer;transition:all .18s}
+    .dot.active{transform:scale(1.4);background:var(--white)}
+
+    /* ====== Sections ====== */
+    .section{padding:28px 28px 44px}
+    .section h2{margin:0 0 14px;font-size:20px}
+    .row{display:flex;gap:12px;overflow:auto;padding-bottom:6px}
+    .row::-webkit-scrollbar{height:10px}
+    .row::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);border-radius:8px}
+
+    .card{width: 1020px;background:linear-gradient(180deg,var(--card), #0b0b0b);border-radius:8px;overflow:hidden;cursor:pointer;transition:transform .18s,box-shadow .18s;box-shadow:0 6px 18px rgba(0,0,0,0.5)}
+    .card:hover{transform:translateY(-8px);box-shadow:0 18px 40px rgba(229,9,20,0.12); border-radius: 100pxx;}
+    .poster{width: 100%;height:200px;background-size:cover;background-position:center}
+    .card-info{padding:10px}
+    .card-info h3{margin:0;font-size:15px}
+    .card-info p{margin:6px 0 0;color:var(--muted);font-size:13px}
+
+    /* ====== PÁGINA DE MARCAS ====== */
+    .page {
+      min-height: 80vh;
+      padding: 80px 20px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .page-hero {
+      background: linear-gradient(135deg, var(--card) 0%, var(--bg) 100%);
+      padding: 80px 20px;
+      text-align: center;
+      margin-bottom: 40px;
+      border-radius: 15px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .page-hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="%23e50914" opacity="0.05"><circle cx="50" cy="50" r="1"/></svg>') repeat;
+      background-size: 20px 20px;
+    }
+    
+    .page-hero h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--white) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      position: relative;
+    }
+    
+    .page-hero p {
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto;
+      position: relative;
+    }
+
+    .filters {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      padding: 10px 20px;
+      background-color: transparent;
+      border: 1px solid var(--muted);
+      border-radius: 30px;
+      color: var(--white);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.9rem;
+    }
+
+    .filter-btn:hover, .filter-btn.active {
+      background-color: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+
+    .brands-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 30px;
+      margin-top: 30px;
+    }
+
+    .brand-card {
+      background: linear-gradient(180deg, var(--card), #0b0b0b);
+      border-radius: 12px;
+      padding: 30px 20px;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+    }
+
+    .brand-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    .brand-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 18px 40px rgba(229,9,20,0.12);
+    }
+
+    .brand-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .brand-logo {
+      height: 80px;
+      width: 80px;
+      margin-bottom: 20px;
+      font-size: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      font-weight: 700;
+      border-radius: 50%;
+      background: rgba(229, 9, 20, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .brand-card:hover .brand-logo {
+      transform: scale(1.1);
+      background: rgba(229, 9, 20, 0.2);
+    }
+
+    .brand-card h3 {
+      margin-bottom: 10px;
+      font-size: 1.3rem;
+      font-weight: 600;
+    }
+
+    .brand-info {
+      margin-top: 10px;
+      font-size: 0.9em;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .country {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: fit-content;
+      margin: 40px auto 0;
+      padding: 12px 30px;
+      background-color: var(--accent);
+      color: white;
+      text-decoration: none;
+      border-radius: 30px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 7px 15px rgba(229, 9, 20, 0.3);
+    }
+
+    /* Footer styles */
+    .footer {
+      background: var(--card);
+      color: var(--text);
+      padding: 50px 20px 20px;
+      margin-top: 60px;
+    }
+    
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+    }
+    
+    .footer-section h3 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: var(--white);
+      position: relative;
+    }
+    
+    .footer-section h3::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -8px;
+      width: 40px;
+      height: 2px;
+      background: var(--accent);
+    }
+    
+    .footer-section ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .footer-section ul li {
+      margin-bottom: 10px;
+    }
+    
+    .footer-section ul li a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    
+    .footer-section ul li a:hover {
+      color: var(--white);
+    }
+    
+    .social-links {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .social-links a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+      color: var(--white);
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    
+    .social-links a:hover {
+      background: var(--accent);
+      transform: translateY(-3px);
+    }
+    
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 40px auto 0;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    /* Botón de cambio de tema */
+    #themeToggle {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s, transform 0.2s;
+    }
+    #themeToggle:hover {
+      background: #b5070f;
+      transform: scale(1.05);
+    }
+
+    /* ====== MODO CLARO ====== */
+    body.light {
+      --bg:#f5f5f5;
+      --card:#ffffff;
+      --accent:#e50914;
+      --muted:#444;
+      --white:#000;
+      --glass: rgba(0,0,0,0.05);
+
+      background:linear-gradient(180deg,#ffffff,#e9e9e9);
+      color:var(--white);
+    }
+
+    body.light .nav-links a:hover {
+      background:rgba(0,0,0,0.06);
+    }
+
+    body.light .icon-btn {
+      background:#f2f2f2;
+      border:1px solid rgba(0,0,0,0.05);
+    }
+
+    body.light .card {
+      background:linear-gradient(180deg,#ffffff,#f0f0f0);
+      box-shadow:0 6px 18px rgba(0,0,0,0.1);
+    }
+
+    body.light .dot.active {
+      background:var(--accent);
+    }
+
+    body.light .btn-play {
+      background:#000;
+      color:#fff;
+    }
+
+    body.light .brand-card {
+      background:linear-gradient(180deg,#ffffff,#f0f0f0);
+      box-shadow:0 6px 18px rgba(0,0,0,0.1);
+    }
+
+    body.light .page-hero {
+      background: linear-gradient(135deg, #ffffff 0%, #e9e9e9 100%);
+    }
+
+    body.light .footer {
+      background: #ffffff;
+      color: #000;
+    }
+
+    body.light .footer-section h3 {
+      color: #000;
+    }
+
+    body.light .footer-section ul li a {
+      color: #444;
+    }
+
+    body.light .footer-section ul li a:hover {
+      color: #000;
+    }
+
+    body.light .social-links a {
+      background: rgba(0,0,0,0.1);
+      color: #000;
+    }
+
+    body.light .footer-bottom {
+      border-top-color: rgba(0,0,0,0.1);
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .hero {height: 350px}
+      .hero{padding:80px 20px 20px}
+      .hero h1{font-size:40px}
+      .poster{height:180px}
+      .search-input{width:140px}
+      
+      .page-hero h1 {
+        font-size: 2rem;
+      }
+      
+      .brands-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+      }
+
+      .footer-content {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .nav{padding:0 12px}
+      .nav-links{display:none}
+      .hero{padding:76px 12px 12px}
+      .hero h1{font-size:32px}
+      .card{min-width:140px}
+      
+      .brands-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .filters {
+        gap: 10px;
+      }
+      
+      .filter-btn {
+        padding: 8px 15px;
+        font-size: 0.8rem;
+      }
+
+      .footer-content {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.6s ease forwards;
+    }
+  </style>
+</head>
+<body class="dark">
+  <nav class="nav">
+    <div class="logo">Sillage</div>
+    <div class="nav-links">
+      <a href="index.html">Inicio</a>
+      <a href="about.html">Sobre nosotros</a>
+      <a href="brands.html" class="active">Marcas</a>
+    </div>
+    <div class="nav-right">
+
+      <button id="themeToggle">☾</button>
+    </div>
+  </nav>
+
+  <div class="page">
+    <div class="page-hero">
+      <h1>Nuestras Marcas</h1>
+      <p>Descubre las mejores casas perfumistas del mundo, cada una con su historia única y legado de excelencia.</p>
+    </div>
+    
+    <div class="filters">
+      <button class="filter-btn active" data-filter="all">Todas</button>
+      <button class="filter-btn" data-filter="france">Francia</button>
+      <button class="filter-btn" data-filter="italy">Italia</button>
+      <button class="filter-btn" data-filter="other">Otros</button>
+    </div>
+    
+    <div class="brands-grid">
+      <div class="brand-card fade-in" data-country="france">
+        <div class="brand-logo">JPG</div>
+        <h3>Jean Paul Gaultier</h3>
+        <div class="brand-info">
+          <div class="country"><i class="fas fa-map-marker-alt"></i> Francia</div>
+          <div>Desde 1993</div>
+        </div>
+      </div>
+      <div class="brand-card fade-in" data-country="france">
+        <div class="brand-logo">CH</div>
+        <h3>Chanel</h3>
+        <div class="brand-info">
+          <div class="country"><i class="fas fa-map-marker-alt"></i> Francia</div>
+          <div>Desde 1921</div>
+        </div>
+      </div>
+      <div class="brand-card fade-in" data-country="other">
+        <div class="brand-logo">AR</div>
+        <h3>Armaf</h3>
+        <div class="brand-info">
+          <div class="country"><i class="fas fa-map-marker-alt"></i> Dubai</div>
+          <div>Desde 2008</div>
+        </div>
+      </div>
+      <div class="brand-card fade-in" data-country="france">
+        <div class="brand-logo">DV</div>
+        <h3>Dior</h3>
+        <div class="brand-info">
+          <div class="country"><i class="fas fa-map-marker-alt"></i> Francia</div>
+          <div>Desde 1947</div>
+        </div>
+      </div>
+      <div class="brand-card fade-in" data-country="other">
+        <div class="brand-logo">CR</div>
+        <h3>Creed</h3>
+        <div class="brand-info">
+          <div class="country"><i class="fas fa-map-marker-alt"></i> Reino Unido</div>
+          <div>Desde 1760</div>
+        </div>
+      </div>
+      <div class="brand-card fade-in" data-country="other">
+        <div class="brand-logo">TF</div>
+        <h3>Tom Ford</h3>
+        <div class="brand-info">
+          <div class="country"><i class="fas fa-map-marker-alt"></i> EE.UU.</div>
+          <div>Desde 2006</div>
+        </div>
+      </div>
+      <div class="brand-card fade-in" data-country="italy">
+        <div class="brand-logo">VS</div>
+        <h3>Versace</h3>
+        <div class="brand-info">
+          <div class="country"><i class="fas fa-map-marker-alt"></i> Italia</div>
+          <div>Desde 1978</div>
+        </div>
+      </div>
+      <div class="brand-card fade-in" data-country="italy">
+        <div class="brand-logo">GV</div>
+        <h3>Giorgio Armani</h3>
+        <div class="brand-info">
+          <div class="country"><i class="fas fa-map-marker-alt"></i> Italia</div>
+          <div>Desde 1982</div>
+        </div>
+      </div>
+      <div class="brand-card fade-in" data-country="france">
+        <div class="brand-logo">YC</div>
+        <h3>Yves Saint Laurent</h3>
+        <div class="brand-info">
+          <div class="country"><i class="fas fa-map-marker-alt"></i> Francia</div>
+          <div>Desde 1964</div>
+        </div>
+      </div>
+      <div class="brand-card fade-in" data-country="italy">
+        <div class="brand-logo">PR</div>
+        <h3>Prada</h3>
+        <div class="brand-info">
+          <div class="country"><i class="fas fa-map-marker-alt"></i> Italia</div>
+          <div>Desde 1913</div>
+        </div>
+      </div>
+      <div class="brand-card fade-in" data-country="france">
+        <div class="brand-logo">HC</div>
+        <h3>Hermès</h3>
+        <div class="brand-info">
+          <div class="country"><i class="fas fa-map-marker-alt"></i> Francia</div>
+          <div>Desde 1837</div>
+        </div>
+      </div>
+      <div class="brand-card fade-in" data-country="italy">
+        <div class="brand-logo">GZ</div>
+        <h3>Gucci</h3>
+        <div class="brand-info">
+          <div class="country"><i class="fas fa-map-marker-alt"></i> Italia</div>
+          <div>Desde 1921</div>
+        </div>
+      </div>
+    </div>
+    
+    <a href="index.html" class="back-btn">
+      <i class="fas fa-arrow-left"></i> Volver al Inicio
+    </a>
+  </div>
+
+  <footer class="footer">
+  
+    <div class="footer-bottom">
+      <p>Copyright © 2024 Sillage Perfume Store | Impulsado por Rubycom</p>
+    </div>
+  </footer>
+
+  <script>
+    // Tema oscuro/claro
+    const themeToggle = document.getElementById('themeToggle');
+    let darkMode = true;
+    themeToggle.addEventListener('click', () => {
+      darkMode = !darkMode;
+      document.body.classList.toggle('light', !darkMode);
+      document.body.classList.toggle('dark', darkMode);
+      themeToggle.textContent = darkMode ? '☾' : '☀';
+    });
+
+    // Filtrado de marcas
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const brandCards = document.querySelectorAll('.brand-card');
+
+    filterButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        // Remover clase active de todos los botones
+        filterButtons.forEach(btn => btn.classList.remove('active'));
+        // Añadir clase active al botón clickeado
+        button.classList.add('active');
+        
+        const filter = button.getAttribute('data-filter');
+        
+        brandCards.forEach(card => {
+          if (filter === 'all' || card.getAttribute('data-country') === filter) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    });
+
+    // Animación de entrada escalonada
+    document.addEventListener('DOMContentLoaded', () => {
+      const cards = document.querySelectorAll('.brand-card');
+      cards.forEach((card, index) => {
+        card.style.animationDelay = `${index * 0.1}s`;
+      });
+    });
+  </script>
+</body>
+</html>

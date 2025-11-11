@@ -1,0 +1,2130 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title> Sillage | Perfume Store</title>
+  <link rel="icon" href="perfume.ico">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    /* ===== Modal Perfume ===== */
+    .modal {
+      display:none;
+      position:fixed;
+      z-index:50;
+      left:0; top:0; width:100%; height:100%;
+      background:rgba(0,0,0,0.8);
+      align-items:center; justify-content:center;
+    }
+    .modal-content {
+      background:var(--card);
+      color:var(--white);
+      padding:20px;
+      border-radius:10px;
+      width:80%;
+      max-width:1180px;
+      display:flex;
+      flex-direction:row;
+      gap:20px;
+      transition: background 0.3s, color 0.3s;
+    }
+    .modal-content img {
+      width: 100%; 
+      object-fit:cover;
+      border-radius:10px;
+    }
+    .modal-info {
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+            width:50%;
+    }
+    .modal-info h2 { font-size:26px; margin-bottom:10px; font-weight:700; }
+    .modal-info p { margin-bottom:8px; color:var(--muted); }
+    .close {
+      position:absolute; top:10px; right:20px;
+      font-size:28px; color:var(--white);
+      background:none; border:none; cursor:pointer;
+    }
+    .slider {
+      position: relative;
+      width: 50%;
+      height: 100%;
+      overflow: hidden;
+    }
+    .slide {
+      width: 100%;
+      height: 100%;
+      display: none;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .slide.active { display: block; }
+    .slider button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.4);
+      color: #fff;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .slider .prev { left: 8px; }
+    .slider .next { right: 8px; }
+
+    /* ===== Carrito lateral ===== */
+    .cart-panel {
+      position: fixed;
+      top: 0; right: -400px;
+      width: 400px;
+      height: 100%;
+      background: var(--card);
+      color: var(--white);
+      box-shadow: -4px 0 10px rgba(0,0,0,0.5);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.4s ease;
+      z-index: 60;
+    }
+    .cart-panel.open { right: 0; }
+    .cart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      padding-bottom: 10px;
+    }
+    .cart-items {
+      flex: 1;
+      overflow-y: auto;
+      margin-top: 10px;
+    }
+    .cart-item {
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding: 10px 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .cart-footer {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      padding-top: 10px;
+    }
+    .cart-footer p { margin: 5px 0; }
+    .cart-footer .payment-methods img { margin-right: 8px; }
+
+    body.light .cart-panel {
+      background:#fff; color:#000;
+    }
+
+    /* Botones */
+    #closeCart {
+      background:none; border:none;
+      font-size:22px; cursor:pointer; color:var(--white);
+    }
+    body.light #closeCart { color:#000; }
+    
+    /* Nuevos estilos para mejoras solicitadas */
+    .add-to-cart {
+      background: linear-gradient(135deg, #f83f26 0%, #c4380d 100%);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .add-to-cart:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .add-to-cart:active {
+      transform: translateY(0);
+    }
+    
+    .perfume-details {
+      margin: 15px 0;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+    }
+    
+    .perfume-notes {
+      margin-top: 10px;
+    }
+    
+    .search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: var(--card);
+      border-radius: 0 0 8px 8px;
+      max-height: 300px;
+      overflow-y: auto;
+      z-index: 40;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      display: none;
+    }
+    
+    .search-result-item {
+      padding: 12px 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    
+    .search-result-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+    
+    .search-container {
+      position: relative;
+    }
+    
+    .brands-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 20px;
+      margin-top: 20px;
+    }
+    
+    .brand-card {
+      background: var(--card);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      transition: transform 0.3s;
+      cursor: pointer;
+    }
+    
+    .brand-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .brand-logo {
+      height: 60px;
+      margin-bottom: 10px;
+      object-fit: contain;
+    }
+    
+    body.cart-open {
+      overflow: hidden;
+    }
+    
+    /* Nuevos estilos para el overlay del carrito */
+    .cart-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 55;
+      display: none;
+      backdrop-filter: blur(3px);
+    }
+    
+    .cart-overlay.active {
+      display: block;
+    }
+    
+    /* Estilos para páginas independientes */
+    .page {
+      min-height: 80vh;
+      padding: 40px 20px;
+    }
+    
+    .about-content {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 40px;
+      margin-top: 30px;
+    }
+    
+    .about-image {
+      background: linear-gradient(135deg, var(--card) 0%, rgba(255,255,255,0.1) 100%);
+      border-radius: 15px;
+      min-height: 300px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+    }
+    
+    .brands-page .brands-grid {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 25px;
+    }
+    
+    .brands-page .brand-card {
+      padding: 30px 20px;
+    }
+    
+    .brands-page .brand-logo {
+      height: 80px;
+      font-size: 36px;
+      margin-bottom: 15px;
+    }
+
+    /* ===== NUEVO FOOTER ===== */
+    .footer {
+      background: var(--card);
+      color: var(--white);
+      padding: 50px 20px 20px;
+      margin-top: 60px;
+    }
+    
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+    }
+    
+    .footer-section h3 {
+      font-size: 18px;
+      margin-bottom: 20px;
+      color: var(--white);
+      position: relative;
+    }
+    
+    .footer-section h3::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: -8px;
+      width: 40px;
+      height: 2px;
+      background: var(--accent);
+    }
+    
+    .footer-section ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .footer-section ul li {
+      margin-bottom: 10px;
+    }
+    
+    .footer-section ul li a {
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    
+    .footer-section ul li a:hover {
+      color: var(--white);
+    }
+    
+    .social-links {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+    }
+    
+    .social-links a {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+      color: var(--white);
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    
+    .social-links a:hover {
+      background: var(--accent);
+      transform: translateY(-3px);
+    }
+    
+    .app-download {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .app-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 15px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: var(--white);
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    
+    .app-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    
+    .app-btn i {
+      font-size: 20px;
+    }
+    
+    .newsletter {
+      margin-top: 20px;
+    }
+    
+    .newsletter-input {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .newsletter-input input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 6px;
+      background: rgba(255,255,255,0.05);
+      color: var(--white);
+      outline: none;
+    }
+    
+    .newsletter-input input::placeholder {
+      color: var(--muted);
+    }
+    
+    .newsletter-input button {
+      padding: 12px 20px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+    
+    .newsletter-input button:hover {
+      background: #b5070f;
+    }
+    
+    .shipping-banner {
+      background: var(--accent);
+      color: white;
+      text-align: center;
+      padding: 15px;
+      margin-bottom: 30px;
+      font-weight: 600;
+    }
+    
+    .payment-methods-footer {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .payment-methods-footer img {
+      height: 30px;
+      border-radius: 4px;
+    }
+    
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 40px auto 0;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    
+    /* Modo claro para el footer */
+    body.light .footer {
+      background: #f5f5f5;
+      color: #000;
+    }
+    
+    body.light .footer-section h3 {
+      color: #000;
+    }
+    
+    body.light .footer-section ul li a {
+      color: #666;
+    }
+    
+    body.light .footer-section ul li a:hover {
+      color: #000;
+    }
+    
+    body.light .social-links a {
+      background: rgba(0,0,0,0.1);
+      color: #000;
+    }
+    
+    body.light .app-btn {
+      background: rgba(0,0,0,0.1);
+      color: #000;
+    }
+    
+    body.light .newsletter-input input {
+      background: rgba(0,0,0,0.05);
+      border-color: rgba(0,0,0,0.1);
+      color: #000;
+    }
+    
+    body.light .footer-bottom {
+      border-top-color: rgba(0,0,0,0.1);
+    }
+
+    /* Mejoras para las páginas de about y brands */
+    .page-hero {
+      background: linear-gradient(135deg, var(--card) 0%, var(--bg) 100%);
+      padding: 80px 20px;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    
+    .page-hero h1 {
+      font-size: 48px;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--white) 0%, var(--muted) 100%);
+
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .page-hero p {
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* ===== NUEVOS ESTILOS PARA MEJORAS ===== */
+    .qty-btn {
+      background: rgba(255,255,255,0.1);
+      color: var(--white);
+      border: none;
+      width: 25px;
+      height: 25px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+    
+    .qty-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    
+    .cart-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 15px;
+    }
+    
+    .checkout-btn {
+      background: linear-gradient(135deg, #f84538 0%, #fc2525 100%);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .checkout-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    
+    .clear-cart-btn {
+      background: rgba(255,255,255,0.1);
+      color: var(--white);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .clear-cart-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    
+    .empty-cart {
+      text-align: center;
+      padding: 30px 0;
+      color: var(--muted);
+    }
+    
+    .cart-item-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 5px;
+    }
+    
+    .remove-item {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 14px;
+      transition: color 0.3s;
+    }
+    
+    .remove-item:hover {
+      color: var(--white);
+    }
+    
+    .cart-badge {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: var(--accent);
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .cart-btn-container {
+      position: relative;
+    }
+    
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--card);
+      color: var(--white);
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 100;
+      transform: translateX(150%);
+      transition: transform 0.3s ease;
+    }
+    
+    .notification.show {
+      transform: translateX(0);
+    }
+    
+    .notification.success {
+      border-left: 4px solid #4CAF50;
+    }
+    
+    .notification.error {
+      border-left: 4px solid #f44336;
+    }
+    
+    .notification.info {
+      border-left: 4px solid #2196F3;
+    }
+    
+    .checkout-form {
+      display: none;
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+    }
+    
+    .checkout-form h3 {
+      margin-bottom: 15px;
+    }
+    
+    .form-group {
+      margin-bottom: 15px;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+    
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 4px;
+      background: rgba(255,255,255,0.05);
+      color: var(--white);
+    }
+    
+    .form-row {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .form-row .form-group {
+      flex: 1;
+    }
+    
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    
+    .form-actions button {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    
+    .submit-order {
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: white;
+    }
+    
+    .cancel-order {
+      background: rgba(255,255,255,0.1);
+      color: var(--white);
+    }
+    
+    .order-summary {
+      margin-top: 20px;
+      padding: 15px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+    }
+    
+    .order-summary h4 {
+      margin-bottom: 10px;
+    }
+    
+    .order-summary-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+    
+    .order-total {
+      border-top: 1px solid rgba(255,255,255,0.2);
+      padding-top: 10px;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    
+    .shipping-options {
+      margin-top: 15px;
+    }
+    
+    .shipping-option {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+    
+    .shipping-option input {
+      margin-right: 10px;
+    }
+    
+    .shipping-option label {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+    }
+    
+    .shipping-cost {
+      font-weight: bold;
+    }
+    
+    /* ===== NUEVOS ESTILOS PARA EL CARRUSEL DE RECOMENDADOS ===== */
+    .carousel-container {
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+    }
+    
+    .carousel-track {
+      display: flex;
+      transition: transform 0.5s ease;
+    }
+    
+    .carousel-slide {
+      min-width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    
+    .carousel-nav {
+      display: flex;
+      justify-content: center;
+      margin-top: 15px;
+      gap: 10px;
+    }
+    
+    .carousel-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    
+    .carousel-dot.active {
+      background: var(--accent);
+    }
+    
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      z-index: 10;
+      transition: background 0.3s;
+    }
+    
+    .carousel-btn:hover {
+      background: rgba(0, 0, 0, 0.7);
+    }
+    
+    .carousel-prev {
+      left: 10px;
+    }
+    
+    .carousel-next {
+      right: 10px;
+    }
+    
+    /* ===== ANIMACIONES PARA DINAMISMO ===== */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.6s ease forwards;
+    }
+    
+    .card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+    
+    .pulse {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    
+    /* ===== NUEVO MODAL PARA PAGO ===== */
+    .payment-modal {
+      display: none;
+      position: fixed;
+      z-index: 70;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .payment-modal-content {
+      background: var(--card);
+      color: var(--white);
+      padding: 30px;
+      border-radius: 15px;
+      width: 100%;
+      max-width: 1000px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+    
+    .payment-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      padding-bottom: 15px;
+    }
+    
+    .payment-modal-header h2 {
+      margin: 0;
+      font-size: 34px;
+      background: white;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .close-payment {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: var(--white);
+      cursor: pointer;
+      transition: color 0.3s;
+    }
+    
+    .close-payment:hover {
+      color: var(--accent);
+    }
+    
+    .payment-form-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    
+    .payment-form-left {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .payment-form-right {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .payment-form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    
+    .payment-form-group label {
+      font-weight: 600;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    
+    .payment-form-group input,
+    .payment-form-group select {
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--white);
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+    
+    .payment-form-group input:focus,
+    .payment-form-group select:focus {
+      outline: none;
+      border-color: #ffffff;
+      box-shadow: 0 0 0 2px rgba(106, 17, 203, 0.2);
+    }
+    
+    .payment-form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    
+    .payment-summary {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+    
+    .payment-summary h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 10px;
+    }
+    
+    .payment-summary-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    
+    .payment-total {
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+      padding-top: 10px;
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 18px;
+    }
+    
+    .payment-actions {
+      display: flex;
+      gap: 15px;
+      margin-top: 25px;
+    }
+    
+    .payment-submit {
+      flex: 2;
+      background: linear-gradient(135deg, #fa3535 0%, #fc2525 100%);
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .payment-submit:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .payment-cancel {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--white);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 15px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .payment-cancel:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .payment-methods-icons {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .payment-methods-icons img {
+      height: 30px;
+      border-radius: 4px;
+    }
+    
+    .secure-payment {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 15px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    
+    .secure-payment i {
+      color: #4CAF50;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .payment-form-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .payment-modal-content {
+        width: 95%;
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body class="dark">
+
+  <nav class="nav">
+    <div class="logo">Sillage</div>
+    <div class="nav-links">
+      <a href="index.html" id="homeLink">Inicio</a>
+      <a href="about.html" id="aboutLink">Sobre nosotros</a>
+      <a href="brands.html" id="brandsLink">Marcas</a>
+    </div>
+    <div class="nav-right">
+      <div class="search-container">
+        <input type="text" id="search" placeholder="Buscar..." class="search-box">
+        <div id="searchResults" class="search-results"></div>
+      </div>
+   
+      <div class="icon-bt" title="Perfil" id="loginBtn"></div>
+      <div class="cart-btn-container">
+        <div class="icon-btn" id="cartBtn" title="Carrito"><img src="cc.png" alt=""></div>
+        <div id="cartBadge" class="cart-badge"></div>
+      </div>
+      <button id="themeToggle">☀</button>
+    </div>
+  </nav>
+
+  <!-- Notificación -->
+  <div id="notification" class="notification"></div>
+
+  <!-- Overlay para el carrito -->
+  <div id="cartOverlay" class="cart-overlay"></div>
+
+  <!-- Modal para pago -->
+  <div id="paymentModal" class="payment-modal">
+    <div class="payment-modal-content">
+      <div class="payment-modal-header">
+        <h2>Finalizar Compra</h2>
+        <button class="close-payment">&times;</button>
+      </div>
+      
+      <div class="payment-form-container">
+        <div class="payment-form-left">
+          <h3>Información Personal</h3>
+          
+          <div class="payment-form-group">
+            <label for="paymentFullName">Nombre Completo *</label>
+            <input type="text" id="paymentFullName" required>
+          </div>
+          
+          <div class="payment-form-group">
+            <label for="paymentEmail">Correo Electrónico *</label>
+            <input type="email" id="paymentEmail" required>
+          </div>
+          
+          <div class="payment-form-group">
+            <label for="paymentPhone">Teléfono *</label>
+            <input type="tel" id="paymentPhone" required>
+          </div>
+          
+          <h3>Dirección de Envío</h3>
+          
+          <div class="payment-form-group">
+            <label for="paymentAddress">Dirección *</label>
+            <input type="text" id="paymentAddress" required>
+          </div>
+          
+          <div class="payment-form-row">
+            <div class="payment-form-group">
+              <label for="paymentCity">Ciudad *</label>
+              <input type="text" id="paymentCity" required>
+            </div>
+            
+            <div class="payment-form-group">
+              <label for="paymentZipCode">Código Postal *</label>
+              <input type="text" id="paymentZipCode" required>
+            </div>
+          </div>
+          
+          <div class="payment-form-group">
+            <label for="paymentCountry">País *</label>
+            <select id="paymentCountry" required>
+              <option value="">Seleccionar país</option>
+              <option value="RD">República Dominicana</option>
+              <option value="MX">México</option>
+              <option value="ES">España</option>
+              <option value="US">Estados Unidos</option>
+              <option value="AR">Argentina</option>
+              <option value="CO">Colombia</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="payment-form-right">
+          <h3>Información de Pago</h3>
+          
+          <div class="payment-form-group">
+            <label for="paymentCardNumber">Número de Tarjeta *</label>
+            <input type="text" id="paymentCardNumber" placeholder="1234 5678 9012 3456" required>
+          </div>
+          
+          <div class="payment-form-row">
+            <div class="payment-form-group">
+              <label for="paymentExpiry">Fecha de Vencimiento *</label>
+              <input type="text" id="paymentExpiry" placeholder="MM/AA" required>
+            </div>
+            
+            <div class="payment-form-group">
+              <label for="paymentCVV">CVV *</label>
+              <input type="text" id="paymentCVV" placeholder="123" required>
+            </div>
+          </div>
+          
+          <div class="payment-form-group">
+            <label for="paymentCardName">Nombre en la Tarjeta *</label>
+            <input type="text" id="paymentCardName" required>
+          </div>
+          
+          <div class="payment-methods-icons">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png" alt="MasterCard">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Paypal_2014_logo.png" alt="PayPal">
+          </div>
+          
+          <div class="secure-payment">
+            <i class="fas fa-lock"></i>
+            <span>Transacción segura - Tus datos están protegidos</span>
+          </div>
+          
+          <div class="payment-summary">
+            <h3>Resumen del Pedido</h3>
+            <div id="paymentOrderSummary"></div>
+            <div class="payment-summary-item payment-total">
+              <span>Total:</span>
+              <span>$<span id="paymentTotal">0</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="payment-actions">
+        <button class="payment-submit" id="paymentSubmit">Realizar Pago</button>
+        <button class="payment-cancel" id="paymentCancel">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenido principal -->
+  <div id="mainContent">
+    <!-- HERO -->
+    <header class="hero">
+      <div id="heroBackdrop" class="backdrop"></div>
+      <div class="hero-content">
+        <h1 id="heroTitle"></h1>
+        <p id="heroDesc"></p>
+        <button class="btn" id="btnHeroPlay">Información</button>
+      </div>
+      <div class="dots" id="dots"></div>
+    </header>
+
+    <!-- Secciones -->
+    <main>
+      <section class="section">
+        <h2>Recomendadas</h2>
+        <div class="carousel-container" id="recomendadasCarousel">
+          <div class="carousel-track" id="recomendadasTrack"></div>
+          <button class="carousel-btn carousel-prev">❮</button>
+          <button class="carousel-btn carousel-next">❯</button>
+          <div class="carousel-nav" id="recomendadasNav"></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Jean Paul Gaultier</h2>
+        <div class="row" id="jeanpaul"></div>
+      </section>
+
+      <section class="section">
+        <h2>Chanel</h2>
+        <div class="row" id="chanel"></div>
+      </section>
+
+      <section class="section">
+        <h2>Armaf</h2>
+        <div class="row" id="armaf"></div>
+      </section>
+      
+      <!-- NUEVAS SECCIONES AGREGADAS -->
+      <section class="section">
+        <h2>Dior</h2>
+        <div class="row" id="dior"></div>
+      </section>
+      
+      <section class="section">
+        <h2>Versace</h2>
+        <div class="row" id="versace"></div>
+      </section>
+      
+      <section class="section">
+        <h2>Tom Ford</h2>
+        <div class="row" id="tomford"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- NUEVO FOOTER -->
+  <footer class="footer">
+    <div class="shipping-banner">
+      🚚 Envío gratis a partir de RD$7,000.00
+    </div>
+    
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3>REDES SOCIALES</h3>
+        <div class="social-links">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+          <a href="#"><i class="fab fa-tiktok"></i></a>
+        </div>
+        
+        <h3 style="margin-top: 30px;">DESCARGA NUESTRA APP</h3>
+        <div class="app-download">
+          <a href="#" class="app-btn">
+            <i class="fab fa-google-play"></i>
+            <div>
+              <small>Disponible en</small>
+              <div>Google Play</div>
+            </div>
+          </a>
+          <a href="#" class="app-btn">
+            <i class="fab fa-apple"></i>
+            <div>
+              <small>Descarga en</small>
+              <div>App Store</div>
+            </div>
+          </a>
+        </div>
+      </div>
+      
+      <div class="footer-section">
+        <h3>Unete a nosotros</h3>
+        <p>Suscríbete para recibir ofertas exclusivas</p>
+        <div class="newsletter">
+          <div class="newsletter-input">
+            <input type="email" placeholder="Su correo electrónico">
+            <button>Unirse</button>
+          </div>
+        </div>
+        
+        <h3 style="margin-top: 30px;">Aceptamos</h3>
+        <div class="payment-methods-footer">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" alt="Visa">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png" alt="MasterCard">
+        </div>
+      </div>
+      
+      <div class="footer-section">
+
+        
+        <h3 style="margin-top: 30px;">Políticas</h3>
+        <ul>
+          <li><a href="#">Términos y condiciones</a></li>
+          <li><a href="#">Política de Entrega</a></li>
+          <li><a href="#">Política de Privacidad</a></li>
+          <li><a href="#">Política de Cambios y Devoluciones</a></li>
+        </ul>
+      </div>
+      
+      <div class="footer-section">
+        <h3>Enlaces Rápidos</h3>
+        <ul>
+          <li><a href="index.html">Inicio</a></li>
+
+          <li><a href="about.html">Sobre Nosotros</a></li>
+          <li><a href="brands.html">Marcas</a></li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="footer-bottom">
+      <p>Copyright © 2024 Sillage Perfume Store | Impulsado por Rubycom</p>
+    </div>
+  </footer>
+
+  <!-- Modal PERFUME -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <button class="close">&times;</button>
+      <div class="slider" id="modalSlider"></div>
+      <div class="modal-info">
+        <h2 id="modalTitle"></h2>
+        <p id="modalDesc"></p>
+        <div class="perfume-details">
+          <p><b>Año de lanzamiento:</b> <span id="modalYear"></span></p>
+          <p><b>Notas principales:</b></p>
+          <div id="modalNotes" class="perfume-notes"></div>
+        </div>
+        <p><b>Precio:</b> $<span id="modalPrice"></span></p>
+        <button class="add-to-cart" id="addToCartBtn">
+          <span>Agregar al carrito</span>
+          <span>🛒</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Panel lateral del CARRITO -->
+  <div id="cartPanel" class="cart-panel">
+    <div class="cart-header">
+      <h2>🛒 Tu Carrito</h2>
+      <button id="closeCart">✖</button>
+    </div>
+    <div id="cartItems" class="cart-items"></div>
+    <div class="cart-footer">
+      <p><strong>Subtotal:</strong> $<span id="cartSubtotal">0</span></p>
+      <p><strong>Envío:</strong> $<span id="cartShipping">0</span></p>
+      <p><strong>Total:</strong> $<span id="cartTotal">0</span></p>
+      
+      <div class="shipping-options">
+        <div class="shipping-option">
+          <input type="radio" id="standard" name="shipping" value="5" checked>
+          <label for="standard">
+            <span>Envío Estándar</span>
+            <span class="shipping-cost">$5</span>
+          </label>
+        </div>
+        <div class="shipping-option">
+          <input type="radio" id="express" name="shipping" value="15">
+          <label for="express">
+            <span>Envío Express</span>
+            <span class="shipping-cost">$15</span>
+          </label>
+        </div>
+      </div>
+      
+      <div class="cart-actions">
+        <button class="checkout-btn" id="checkoutBtn">Proceder al Pago</button>
+        <button class="clear-cart-btn" id="clearCartBtn">Vaciar Carrito</button>
+      </div>
+      
+      <div class="payment-methods">
+        <p><strong>Formas de pago:</strong></p>
+        <img src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png" width="40">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/0/04/Mastercard-logo.png" width="40">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a4/Paypal_2014_logo.png" width="40">
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase y script -->
+  <script type="module">
+    // ===================== FIREBASE CONFIG =====================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    const firebaseConfig = {
+  apiKey: "AIzaSyCVsV1l5b47wbXzbhCXlX8U9rS9hU7h3Fc",
+  authDomain: "sillage-ac073.firebaseapp.com",
+  projectId: "sillage-ac073",
+  storageBucket: "sillage-ac073.firebasestorage.app",
+  messagingSenderId: "703407406225",
+  appId: "1:703407406225:web:5b71a25b25ce7213ab5330",
+  measurementId: "G-W9PXFCHG1P"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    const loginBtn = document.getElementById("loginBtn");
+    let user = null;
+
+    loginBtn.addEventListener("click", async () => {
+      if (user) {
+        await signOut(auth);
+        user = null;
+        alert("Sesión cerrada");
+        loginBtn.textContent = "👤";
+      } else {
+        const result = await signInWithPopup(auth, provider);
+        user = result.user;
+        alert("Bienvenido " + user.displayName);
+        loginBtn.textContent = "✅";
+      }
+    });
+
+    // ===================== PRODUCTOS =====================
+    const perfumes = [
+      { 
+        id: 'p1', 
+        title: 'Le Male Elixir Absolu Parfum Intense', 
+        desc: 'Una fragancia intensa y seductora que combina notas cálidas y especiadas con un toque moderno.', 
+        marca: 'Jean Paul Gaultier', 
+        year: 2023, 
+        price: 145, 
+        poster: 'image.png', 
+        images: ['jpg4.jpg','jpg5.png'], 
+        backdrop: 'image.png',
+        notes: ['Lavanda', 'Vainilla', 'Cardamomo', 'Ámbar']
+      },
+      { 
+        id: 'm2', 
+        title: 'Club de Nuit Intense Man', 
+        desc: 'Una fragancia masculina potente y sofisticada con un carácter audaz y duradero.', 
+        marca: 'Armaf', 
+        year: 2015, 
+        price: 65, 
+        poster: 'arm.jpg', 
+        images: ['armaf.png','armaf2.png'], 
+        backdrop: 'arm.jpg',
+        notes: ['Limón', 'Grosella negra', 'Jazmín', 'Ámbar gris', 'Pachulí']
+      },
+      { 
+        id: 'm3a', 
+        title: 'Jean Paul Gaultier Le Male', 
+        desc: 'La fragancia icónica que revolucionó el mundo de la perfumería masculina con su combinación única de frescura y sensualidad.', 
+        marca: 'Jean Paul Gaultier', 
+        year: 1995, 
+        price: 98, 
+        poster: 'jpn2.png', 
+        images: ['jpg6.png','jpg7.png'], 
+        backdrop: 'jpn2.png',
+        notes: ['Lavanda', 'Menta', 'Canela', 'Vainilla', 'Ámbar']
+      },
+      { 
+        id: 'm4', 
+        title: 'AFNAN 9 p.m Elixir', 
+        desc: 'Una fragancia audaz y moderna que irradia confianza y masculinidad con un carácter duradero.', 
+        marca: 'Armaf', 
+        year: 2021, 
+        price: 75, 
+        poster: '9pm.png', 
+        images: ['9pm.png','9pm2.png'], 
+        backdrop: '9pm.png',
+        notes: ['Manzana', 'Vainilla', 'Canela', 'Musk']
+      },
+      { 
+        id: 'm5', 
+        title: 'Chanel Bleu de Chanel', 
+        desc: 'Una fragancia sofisticada y moderna que combina frescura cítrica con profundidad amaderada.', 
+        marca: 'Chanel', 
+        year: 2010, 
+        price: 135, 
+        poster: 'bdc.jpg', 
+        images: ['bdc2.jpg','bdc.jpg'], 
+        backdrop: 'bdc.jpg',
+        notes: ['Pomelo', 'Jengibre', 'Incienso', 'Sándalo', 'Musk']
+      },
+      { 
+        id: 'm6', 
+        title: 'Coco Mademoiselle', 
+        desc: 'Una fragancia femenina vibrante y moderna que combina frescura cítrica con profundidad oriental.', 
+        marca: 'Chanel', 
+        year: 2001, 
+        price: 120, 
+        poster: 'cch.jpg', 
+        images: ['cch2.png','cch3.png'], 
+        backdrop: 'bdc.jpg',
+        notes: ['Naranja', 'Rosa', 'Jazmín', 'Pachulí', 'Vainilla']
+      },
+      // NUEVOS PRODUCTOS AGREGADOS
+      { 
+        id: 'd1', 
+        title: 'Sauvage Eau de Parfum', 
+        desc: 'Una fragancia fresca y amaderada que combina notas de bergamota y pimienta con un fondo ambarado.', 
+        marca: 'Dior', 
+        year: 2018, 
+        price: 155, 
+        poster: 'diors.jpg', 
+        images: ['diorss.jpeg','dior2.jpeg'], 
+        backdrop: 'https://via.placeholder.com/1200x600?text=Sauvage+Backdrop',
+        notes: ['Bergamota', 'Pimienta', 'Lavanda', 'Vetiver', 'Ámbar']
+      },
+      { 
+        id: 'd2', 
+        title: 'J\'adore Eau de Parfum', 
+        desc: 'Una fragancia floral y luminosa que celebra la feminidad con un bouquet de flores excepcionales.', 
+        marca: 'Dior', 
+        year: 1999, 
+        price: 140, 
+        poster: 'jdore.png', 
+        images: ['jadore.jpg','jdore.png'], 
+        backdrop: 'https://via.placeholder.com/1200x600?text=Jadore+Backdrop',
+        notes: ['Rosa', 'Jazmín', 'Ylang-Ylang', 'Vainilla', 'Musk']
+      },
+      { 
+        id: 'v1', 
+        title: 'Eros Eau de Toilette', 
+        desc: 'Una fragancia vibrante y seductora que combina frescura mentolada con un fondo amaderado.', 
+        marca: 'Versace', 
+        year: 2012, 
+        price: 95, 
+        poster: 'versache.jpeg', 
+        images: ['eros.jpeg ','eros.png',], 
+        backdrop: 'https://via.placeholder.com/1200x600?text=Eros+Backdrop',
+        notes: ['Menta', 'Manzana Verde', 'Vainilla', 'Maderas', 'Ámbar']
+      },
+      { 
+        id: 'v2', 
+        title: 'Bright Crystal', 
+        desc: 'Una fragancia floral y frutal que combina notas de granada con un bouquet floral sofisticado.', 
+        marca: 'Versace', 
+        year: 2006, 
+        price: 85, 
+        poster: 'bc2.png', 
+        images: ['bc.jpg','bc3.png'], 
+        backdrop: 'https://via.placeholder.com/1200x600?text=Bright+Crystal+Backdrop',
+        notes: ['Yuzu', 'Granada', 'Flor de Loto', 'Magnolia', 'Musk']
+      },
+      { 
+        id: 'tf1', 
+        title: 'Noir Extreme', 
+        desc: 'Una fragancia oriental intensa que combina notas especiadas con un fondo amaderado y cremoso.', 
+        marca: 'Tom Ford', 
+        year: 2015, 
+        price: 245, 
+        poster: 'ne.jpg', 
+        images: ['ne2.png','ne3.png'], 
+        backdrop: 'https://via.placeholder.com/1200x600?text=Noir+Extreme+Backdrop',
+        notes: ['Nuez Moscada', 'Cardamomo', 'Flor de Naranjo', 'Vainilla', 'Sándalo']
+      },
+      { 
+        id: 'tf2', 
+        title: 'Black Orchid', 
+        desc: 'Una fragancia opulenta y misteriosa que combina notas florales oscuras con acordes amaderados.', 
+        marca: 'Tom Ford', 
+        year: 2006, 
+        price: 220, 
+        poster: 'bo.png', 
+        images: ['bo2.png','bo3.png'], 
+        backdrop: '',
+        notes: ['Trufa', 'Orquídea Negra', 'Flor de Loto', 'Vainilla', 'Pachulí']
+      }
+    ];
+
+    const jeanpaulEl = document.getElementById('jeanpaul');
+    const armafEl = document.getElementById('armaf');
+    const chanelEl = document.getElementById('chanel');
+    const diorEl = document.getElementById('dior');
+    const versaceEl = document.getElementById('versace');
+    const tomfordEl = document.getElementById('tomford');
+
+    function createCard(perfume) {
+      const div = document.createElement('div');
+      div.className = 'card fade-in';
+      div.innerHTML = `
+        <div class="poster" style="background-image:url('${perfume.poster}')"></div>
+        <div class="card-info">
+          <h3>${perfume.title}</h3>
+          <p>${perfume.marca} • ${perfume.year}</p>
+        </div>`;
+      div.addEventListener('click', () => openModal(perfume));
+      return div;
+    }
+
+    function populate() {
+      [jeanpaulEl, armafEl, chanelEl, diorEl, versaceEl, tomfordEl].forEach(e=>e.innerHTML='');
+      perfumes.forEach(p => {
+        if (p.marca.toLowerCase().includes('jean paul')) jeanpaulEl.appendChild(createCard(p));
+        if (p.marca.toLowerCase().includes('armaf')) armafEl.appendChild(createCard(p));
+        if (p.marca.toLowerCase().includes('chanel')) chanelEl.appendChild(createCard(p));
+        if (p.marca.toLowerCase().includes('dior')) diorEl.appendChild(createCard(p));
+        if (p.marca.toLowerCase().includes('versace')) versaceEl.appendChild(createCard(p));
+        if (p.marca.toLowerCase().includes('tom ford')) tomfordEl.appendChild(createCard(p));
+      });
+    }
+    populate();
+
+    // ===== CARRUSEL PARA RECOMENDADOS =====
+    const recomendadasTrack = document.getElementById('recomendadasTrack');
+    const recomendadasNav = document.getElementById('recomendadasNav');
+    const carouselPrev = document.querySelector('.carousel-prev');
+    const carouselNext = document.querySelector('.carousel-next');
+    
+    let currentSlide = 0;
+    let slidesPerView = 4; // Número de productos por vista
+    
+    function initCarousel() {
+      // Limpiar el carrusel
+      recomendadasTrack.innerHTML = '';
+      recomendadasNav.innerHTML = '';
+      
+      // Calcular número de slides necesarios
+      const totalSlides = Math.ceil(perfumes.length / slidesPerView);
+      
+      // Crear slides
+      for (let i = 0; i < totalSlides; i++) {
+        const slide = document.createElement('div');
+        slide.className = 'carousel-slide';
+        
+        // Agregar productos a este slide
+        for (let j = 0; j < slidesPerView; j++) {
+          const perfumeIndex = i * slidesPerView + j;
+          if (perfumeIndex < perfumes.length) {
+            slide.appendChild(createCard(perfumes[perfumeIndex]));
+          }
+        }
+        
+        recomendadasTrack.appendChild(slide);
+        
+        // Crear indicadores de navegación
+        const dot = document.createElement('div');
+        dot.className = 'carousel-dot';
+        if (i === 0) dot.classList.add('active');
+        dot.addEventListener('click', () => goToSlide(i));
+        recomendadasNav.appendChild(dot);
+      }
+      
+      updateCarousel();
+    }
+    
+    function updateCarousel() {
+      const trackWidth = recomendadasTrack.clientWidth;
+      recomendadasTrack.style.transform = `translateX(-${currentSlide * 100}%)`;
+      
+      // Actualizar indicadores activos
+      const dots = document.querySelectorAll('.carousel-dot');
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === currentSlide);
+      });
+    }
+    
+    function goToSlide(slideIndex) {
+      currentSlide = slideIndex;
+      updateCarousel();
+    }
+    
+    function nextSlide() {
+      const totalSlides = Math.ceil(perfumes.length / slidesPerView);
+      currentSlide = (currentSlide + 1) % totalSlides;
+      updateCarousel();
+    }
+    
+    function prevSlide() {
+      const totalSlides = Math.ceil(perfumes.length / slidesPerView);
+      currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+      updateCarousel();
+    }
+    
+    // Event listeners para los botones del carrusel
+    carouselPrev.addEventListener('click', prevSlide);
+    carouselNext.addEventListener('click', nextSlide);
+    
+    // Inicializar carrusel
+    initCarousel();
+    
+    // Auto-avance del carrusel
+    setInterval(nextSlide, 5000);
+
+    // ===== Modal Perfume =====
+    const modal = document.getElementById('modal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDesc = document.getElementById('modalDesc');
+    const modalYear = document.getElementById('modalYear');
+    const modalNotes = document.getElementById('modalNotes');
+    const modalPrice = document.getElementById('modalPrice');
+    const modalSlider = document.getElementById('modalSlider');
+    const closeBtn = document.querySelector('.close');
+    const addToCartBtn = document.getElementById('addToCartBtn');
+
+    let currentProduct = null;
+    let slideIndex = 0;
+
+    function openModal(perfume) {
+      currentProduct = perfume;
+      modalTitle.textContent = perfume.title;
+      modalDesc.textContent = perfume.desc;
+      modalYear.textContent = perfume.year;
+      modalPrice.textContent = perfume.price;
+
+      // Mostrar notas de perfume
+      modalNotes.innerHTML = '';
+      if (perfume.notes) {
+        perfume.notes.forEach(note => {
+          const noteElement = document.createElement('span');
+          noteElement.textContent = note;
+          noteElement.style.display = 'inline-block';
+          noteElement.style.background = 'rgba(255,255,255,0.1)';
+          noteElement.style.padding = '4px 8px';
+          noteElement.style.margin = '2px';
+          noteElement.style.borderRadius = '4px';
+          noteElement.style.fontSize = '14px';
+          modalNotes.appendChild(noteElement);
+        });
+      }
+
+      modalSlider.innerHTML = `
+        ${perfume.images.map((img, i)=>`<img src="${img}" class="slide ${i===0?'active':''}">`).join('')}
+        <button class="prev">❮</button>
+        <button class="next">❯</button>
+      `;
+      slideIndex = 0;
+      modalSlider.querySelector('.prev').onclick = ()=>showSlide(-1);
+      modalSlider.querySelector('.next').onclick = ()=>showSlide(1);
+
+      modal.style.display = 'flex';
+    }
+
+    function showSlide(n) {
+      const slides = modalSlider.querySelectorAll('.slide');
+      slideIndex = (slideIndex + n + slides.length) % slides.length;
+      slides.forEach((s,i)=>s.classList.toggle('active', i===slideIndex));
+    }
+
+    closeBtn.onclick = () => modal.style.display = 'none';
+    window.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
+
+    // ===== CARRITO MEJORADO =====
+    let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    const cartPanel = document.getElementById('cartPanel');
+    const cartBtn = document.getElementById('cartBtn');
+    const closeCart = document.getElementById('closeCart');
+    const cartItems = document.getElementById('cartItems');
+    const cartSubtotal = document.getElementById('cartSubtotal');
+    const cartShipping = document.getElementById('cartShipping');
+    const cartTotal = document.getElementById('cartTotal');
+    const cartOverlay = document.getElementById('cartOverlay');
+    const cartBadge = document.getElementById('cartBadge');
+    const clearCartBtn = document.getElementById('clearCartBtn');
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    const notification = document.getElementById('notification');
+
+    // ===== MODAL DE PAGO =====
+    const paymentModal = document.getElementById('paymentModal');
+    const closePayment = document.querySelector('.close-payment');
+    const paymentCancel = document.getElementById('paymentCancel');
+    const paymentSubmit = document.getElementById('paymentSubmit');
+    const paymentOrderSummary = document.getElementById('paymentOrderSummary');
+    const paymentTotal = document.getElementById('paymentTotal');
+
+    function showNotification(message, type = 'info') {
+      notification.textContent = message;
+      notification.className = `notification ${type} show`;
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+
+    function updateCart(){
+      cartItems.innerHTML = '';
+      let subtotal = 0;
+      let totalItems = 0;
+      
+      if (cart.length === 0) {
+        cartItems.innerHTML = '<div class="empty-cart">Tu carrito está vacío</div>';
+        cartBadge.textContent = '0';
+      } else {
+        cart.forEach((item, index)=>{
+          subtotal += item.price * (item.quantity || 1);
+          totalItems += (item.quantity || 1);
+          
+          const div = document.createElement('div');
+          div.className = 'cart-item';
+          div.innerHTML = `
+            <strong>${item.title}</strong>
+            <div>${item.marca} - $${item.price} x <span id="qty-${index}">${item.quantity || 1}</span></div>
+            <div class="cart-item-actions">
+              <div>
+                <button class="qty-btn" data-index="${index}" data-action="decrease">-</button>
+                <button class="qty-btn" data-index="${index}" data-action="increase">+</button>
+              </div>
+              <button class="remove-item" data-index="${index}">Eliminar</button>
+            </div>
+          `;
+          cartItems.appendChild(div);
+        });
+        
+        cartBadge.textContent = totalItems;
+      }
+      
+      // Calcular envío
+      const shippingOption = document.querySelector('input[name="shipping"]:checked');
+      const shippingCost = shippingOption ? parseFloat(shippingOption.value) : 5;
+      
+      cartSubtotal.textContent = subtotal.toFixed(2);
+      cartShipping.textContent = shippingCost.toFixed(2);
+      cartTotal.textContent = (subtotal + shippingCost).toFixed(2);
+      
+      localStorage.setItem('cart', JSON.stringify(cart));
+
+      // Actualizar botones de cantidad
+      const qtyButtons = cartItems.querySelectorAll('.qty-btn');
+      qtyButtons.forEach(btn=>{
+        btn.onclick = () => {
+          const idx = parseInt(btn.getAttribute('data-index'));
+          if(btn.getAttribute('data-action') === 'increase'){
+            cart[idx].quantity = (cart[idx].quantity || 1) + 1;
+            showNotification(`${cart[idx].title} agregado al carrito`, 'success');
+          } else {
+            cart[idx].quantity = (cart[idx].quantity || 1) - 1;
+            if(cart[idx].quantity <= 0) {
+              showNotification(`${cart[idx].title} eliminado del carrito`, 'error');
+              cart.splice(idx,1);
+            }
+          }
+          updateCart();
+        };
+      });
+      
+      // Actualizar botones de eliminar
+      const removeButtons = cartItems.querySelectorAll('.remove-item');
+      removeButtons.forEach(btn=>{
+        btn.onclick = () => {
+          const idx = parseInt(btn.getAttribute('data-index'));
+          showNotification(`${cart[idx].title} eliminado del carrito`, 'error');
+          cart.splice(idx,1);
+          updateCart();
+        };
+      });
+      
+      // Actualizar opciones de envío
+      const shippingOptions = document.querySelectorAll('input[name="shipping"]');
+      shippingOptions.forEach(option => {
+        option.addEventListener('change', updateCart);
+      });
+    }
+
+    addToCartBtn.onclick = ()=>{
+      if (!currentProduct) return;
+      const existingIndex = cart.findIndex(item => item.id === currentProduct.id);
+      if(existingIndex >= 0){
+        cart[existingIndex].quantity = (cart[existingIndex].quantity || 1) + 1;
+        showNotification(`${currentProduct.title} agregado al carrito`, 'success');
+      } else {
+        cart.push({...currentProduct, quantity:1});
+        showNotification(`${currentProduct.title} agregado al carrito`, 'success');
+      }
+      updateCart();
+      modal.style.display='none';
+    }
+
+    function openCart() {
+      cartPanel.classList.add('open');
+      cartOverlay.classList.add('active');
+      document.body.classList.add('cart-open');
+    }
+    
+    function closeCartPanel() {
+      cartPanel.classList.remove('open');
+      cartOverlay.classList.remove('active');
+      document.body.classList.remove('cart-open');
+    }
+    
+    cartBtn.onclick = openCart;
+    closeCart.onclick = closeCartPanel;
+    cartOverlay.onclick = closeCartPanel;
+    
+    // Vaciar carrito
+    clearCartBtn.onclick = () => {
+      if (cart.length > 0) {
+        if (confirm('¿Estás seguro de que quieres vaciar el carrito?')) {
+          cart = [];
+          updateCart();
+          showNotification('Carrito vaciado', 'info');
+        }
+      }
+    }
+    
+    // Abrir modal de pago
+    checkoutBtn.onclick = () => {
+      if (cart.length === 0) {
+        showNotification('Tu carrito está vacío', 'error');
+        return;
+      }
+      
+      // Actualizar resumen del pedido en el modal de pago
+      paymentOrderSummary.innerHTML = '';
+      let subtotal = 0;
+      
+      cart.forEach(item => {
+        const itemTotal = item.price * (item.quantity || 1);
+        subtotal += itemTotal;
+        
+        const div = document.createElement('div');
+        div.className = 'payment-summary-item';
+        div.innerHTML = `
+          <span>${item.title} x${item.quantity || 1}</span>
+          <span>$${itemTotal.toFixed(2)}</span>
+        `;
+        paymentOrderSummary.appendChild(div);
+      });
+      
+      const shippingOption = document.querySelector('input[name="shipping"]:checked');
+      const shippingCost = shippingOption ? parseFloat(shippingOption.value) : 5;
+      
+      paymentTotal.textContent = (subtotal + shippingCost).toFixed(2);
+      
+      // Mostrar modal de pago
+      paymentModal.style.display = 'flex';
+      closeCartPanel();
+    }
+    
+    // Cerrar modal de pago
+    closePayment.onclick = () => {
+      paymentModal.style.display = 'none';
+    }
+    
+    paymentCancel.onclick = () => {
+      paymentModal.style.display = 'none';
+    }
+    
+    // Enviar pedido
+    paymentSubmit.onclick = () => {
+      // Validación básica del formulario
+      const fullName = document.getElementById('paymentFullName').value;
+      const email = document.getElementById('paymentEmail').value;
+      const phone = document.getElementById('paymentPhone').value;
+      const address = document.getElementById('paymentAddress').value;
+      const city = document.getElementById('paymentCity').value;
+      const zipCode = document.getElementById('paymentZipCode').value;
+      const country = document.getElementById('paymentCountry').value;
+      const cardNumber = document.getElementById('paymentCardNumber').value;
+      const expiry = document.getElementById('paymentExpiry').value;
+      const cvv = document.getElementById('paymentCVV').value;
+      const cardName = document.getElementById('paymentCardName').value;
+      
+      if (!fullName || !email || !phone || !address || !city || !zipCode || !country || !cardNumber || !expiry || !cvv || !cardName) {
+        showNotification('Por favor completa todos los campos', 'error');
+        return;
+      }
+      
+      // Simular procesamiento de pago
+      showNotification('Procesando tu pago...', 'info');
+      
+      setTimeout(() => {
+        // Simular éxito del pago
+        showNotification('¡Pago realizado con éxito! Tu pedido está en camino.', 'success');
+        
+        // Limpiar carrito
+        cart = [];
+        updateCart();
+        
+        // Cerrar modal de pago
+        paymentModal.style.display = 'none';
+        
+        // Limpiar formulario
+        document.getElementById('paymentFullName').value = '';
+        document.getElementById('paymentEmail').value = '';
+        document.getElementById('paymentPhone').value = '';
+        document.getElementById('paymentAddress').value = '';
+        document.getElementById('paymentCity').value = '';
+        document.getElementById('paymentZipCode').value = '';
+        document.getElementById('paymentCountry').value = '';
+        document.getElementById('paymentCardNumber').value = '';
+        document.getElementById('paymentExpiry').value = '';
+        document.getElementById('paymentCVV').value = '';
+        document.getElementById('paymentCardName').value = '';
+      }, 3000);
+    }
+    
+    // Cerrar modal de pago al hacer clic fuera
+    window.onclick = e => { 
+      if (e.target === paymentModal) {
+        paymentModal.style.display = 'none';
+      }
+    };
+    
+    updateCart();
+
+    // ===== Tema oscuro/claro =====
+    const themeToggle = document.getElementById('themeToggle');
+    let darkMode = true;
+    themeToggle.addEventListener('click', () => {
+      darkMode = !darkMode;
+      document.body.classList.toggle('light', !darkMode);
+      themeToggle.textContent = darkMode ? '☾' : '☀';
+    });
+
+    // ===== Hero dinámico =====
+    const heroBackdrop = document.getElementById('heroBackdrop');
+    const heroTitle = document.getElementById('heroTitle');
+    const heroDesc = document.getElementById('heroDesc');
+    const dots = document.getElementById('dots');
+    let heroIndex = 0;
+
+    function renderHero(i) {
+      // Solo usar los primeros 2 perfumes para el slider principal
+      const p = perfumes[i % 2]; // Cambiado para usar solo los 2 primeros
+      heroBackdrop.style.backgroundImage = `url('${p.backdrop}')`;
+      heroTitle.textContent = p.title;
+      heroDesc.textContent = p.desc;
+      dots.innerHTML = '';
+      for (let k = 0; k < 2; k++) { // Solo 2 puntos para los 2 perfumes
+        const d = document.createElement('div');
+        d.className = 'dot' + (k === i ? ' active' : '');
+        d.addEventListener('click', () => { heroIndex = k; renderHero(k); });
+        dots.appendChild(d);
+      }
+    }
+    renderHero(0);
+    setInterval(() => { heroIndex = (heroIndex + 1) % 2; renderHero(heroIndex); }, 6000); // Solo 2 perfumes
+
+    // ===== Búsqueda mejorada =====
+    const search = document.getElementById('search');
+    const searchResults = document.getElementById('searchResults');
+    
+    document.getElementById('btnSearch').addEventListener('click', () => applySearch(search.value));
+    
+    search.addEventListener('input', function() {
+      const query = this.value.trim().toLowerCase();
+      
+      if (query.length < 2) {
+        searchResults.style.display = 'none';
+        return;
+      }
+      
+      const results = perfumes.filter(p => 
+        p.title.toLowerCase().includes(query) || 
+        p.marca.toLowerCase().includes(query)
+      );
+      
+      displaySearchResults(results);
+    });
+    
+    function displaySearchResults(results) {
+      searchResults.innerHTML = '';
+      
+      if (results.length === 0) {
+        searchResults.style.display = 'none';
+        return;
+      }
+      
+      results.forEach(perfume => {
+        const resultItem = document.createElement('div');
+        resultItem.className = 'search-result-item';
+        resultItem.innerHTML = `
+          <strong>${perfume.title}</strong>
+          <div style="font-size: 0.8em; color: var(--muted);">${perfume.marca} • ${perfume.year}</div>
+        `;
+        
+        resultItem.addEventListener('click', () => {
+          openModal(perfume);
+          search.value = '';
+          searchResults.style.display = 'none';
+        });
+        
+        searchResults.appendChild(resultItem);
+      });
+      
+      searchResults.style.display = 'block';
+    }
+    
+    // Cerrar resultados al hacer clic fuera
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.search-container')) {
+        searchResults.style.display = 'none';
+      }
+    });
+  </script>
+
+</body>
+</html>
