@@ -181,6 +181,8 @@
       z-index: 40;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       display: none;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-top: none;
     }
     
     .search-result-item {
@@ -1088,7 +1090,7 @@
     </div>
     <div class="nav-right">
       <div class="search-container">
-        <input type="text" id="search" placeholder="Buscar..." class="search-box">
+        <input type="text" id="search" placeholder="Buscar perfumes..." class="search-box">
         <div id="searchResults" class="search-results"></div>
       </div>
    
@@ -1355,7 +1357,7 @@
     </div>
     
     <div class="footer-bottom">
-      <p>Copyright © 2024 Sillage Perfume Store | Impulsado por Rubycom</p>
+      <p>Copyright © 2025 Sillage Perfume Store | Impulsado por Rubycom</p>
     </div>
   </footer>
 
@@ -2068,61 +2070,158 @@
     renderHero(0);
     setInterval(() => { heroIndex = (heroIndex + 1) % 2; renderHero(heroIndex); }, 6000); // Solo 2 perfumes
 
-    // ===== Búsqueda mejorada =====
+    // ===== BÚSQUEDA FUNCIONAL =====
     const search = document.getElementById('search');
     const searchResults = document.getElementById('searchResults');
-    
-    document.getElementById('btnSearch').addEventListener('click', () => applySearch(search.value));
-    
-    search.addEventListener('input', function() {
-      const query = this.value.trim().toLowerCase();
-      
-      if (query.length < 2) {
-        searchResults.style.display = 'none';
-        return;
-      }
-      
-      const results = perfumes.filter(p => 
-        p.title.toLowerCase().includes(query) || 
-        p.marca.toLowerCase().includes(query)
-      );
-      
-      displaySearchResults(results);
-    });
-    
-    function displaySearchResults(results) {
-      searchResults.innerHTML = '';
-      
-      if (results.length === 0) {
-        searchResults.style.display = 'none';
-        return;
-      }
-      
-      results.forEach(perfume => {
-        const resultItem = document.createElement('div');
-        resultItem.className = 'search-result-item';
-        resultItem.innerHTML = `
-          <strong>${perfume.title}</strong>
-          <div style="font-size: 0.8em; color: var(--muted);">${perfume.marca} • ${perfume.year}</div>
-        `;
+
+    // Función para aplicar la búsqueda
+    function applySearch(query) {
+        const searchTerm = query.trim().toLowerCase();
         
-        resultItem.addEventListener('click', () => {
-          openModal(perfume);
-          search.value = '';
-          searchResults.style.display = 'none';
+        if (searchTerm.length === 0) {
+            // Si no hay término de búsqueda, mostrar todos los productos
+            populate();
+            // Mostrar todas las secciones
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.style.display = 'block';
+            });
+            return;
+        }
+        
+        // Filtrar perfumes que coincidan con la búsqueda
+        const filteredPerfumes = perfumes.filter(p => 
+            p.title.toLowerCase().includes(searchTerm) || 
+            p.marca.toLowerCase().includes(searchTerm) ||
+            (p.notes && p.notes.some(note => note.toLowerCase().includes(searchTerm)))
+        );
+        
+        // Limpiar todas las secciones
+        [jeanpaulEl, armafEl, chanelEl, diorEl, versaceEl, tomfordEl].forEach(e => e.innerHTML = '');
+        
+        // Mostrar resultados en las secciones correspondientes
+        filteredPerfumes.forEach(p => {
+            if (p.marca.toLowerCase().includes('jean paul')) jeanpaulEl.appendChild(createCard(p));
+            if (p.marca.toLowerCase().includes('armaf')) armafEl.appendChild(createCard(p));
+            if (p.marca.toLowerCase().includes('chanel')) chanelEl.appendChild(createCard(p));
+            if (p.marca.toLowerCase().includes('dior')) diorEl.appendChild(createCard(p));
+            if (p.marca.toLowerCase().includes('versace')) versaceEl.appendChild(createCard(p));
+            if (p.marca.toLowerCase().includes('tom ford')) tomfordEl.appendChild(createCard(p));
         });
         
-        searchResults.appendChild(resultItem);
-      });
-      
-      searchResults.style.display = 'block';
+        // Ocultar secciones vacías
+        const sections = document.querySelectorAll('.section');
+        sections.forEach(section => {
+            const row = section.querySelector('.row');
+            if (row && row.children.length === 0) {
+                section.style.display = 'none';
+            } else {
+                section.style.display = 'block';
+            }
+        });
+        
+        // Mostrar mensaje si no hay resultados
+        if (filteredPerfumes.length === 0) {
+            const noResults = document.createElement('div');
+            noResults.className = 'no-results';
+            noResults.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: var(--muted);">
+                    <i class="fas fa-search" style="font-size: 48px; margin-bottom: 20px;"></i>
+                    <h3>No se encontraron resultados</h3>
+                    <p>Intenta con otros términos de búsqueda</p>
+                </div>
+            `;
+            document.querySelector('main').appendChild(noResults);
+        } else {
+            // Eliminar mensaje de no resultados si existe
+            const existingNoResults = document.querySelector('.no-results');
+            if (existingNoResults) {
+                existingNoResults.remove();
+            }
+        }
     }
-    
+
+    // Evento para búsqueda en tiempo real
+    search.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        // Ocultar resultados de búsqueda anteriores
+        searchResults.style.display = 'none';
+        
+        // Aplicar filtro a los productos
+        applySearch(query);
+    });
+
+    // Evento para mostrar sugerencias al hacer focus
+    search.addEventListener('focus', function() {
+        const query = this.value.trim();
+        if (query.length >= 2) {
+            showSearchSuggestions(query);
+        }
+    });
+
+    // Función para mostrar sugerencias de búsqueda
+    function showSearchSuggestions(query) {
+        const results = perfumes.filter(p => 
+            p.title.toLowerCase().includes(query.toLowerCase()) || 
+            p.marca.toLowerCase().includes(query.toLowerCase())
+        ).slice(0, 5); // Mostrar solo 5 sugerencias
+        
+        searchResults.innerHTML = '';
+        
+        if (results.length === 0) {
+            searchResults.style.display = 'none';
+            return;
+        }
+        
+        results.forEach(perfume => {
+            const resultItem = document.createElement('div');
+            resultItem.className = 'search-result-item';
+            resultItem.innerHTML = `
+                <strong>${perfume.title}</strong>
+                <div style="font-size: 0.8em; color: var(--muted);">${perfume.marca} • ${perfume.year}</div>
+            `;
+            
+            resultItem.addEventListener('click', () => {
+                openModal(perfume);
+                search.value = '';
+                searchResults.style.display = 'none';
+                // Restaurar vista normal después de seleccionar un resultado
+                setTimeout(() => populate(), 100);
+            });
+            
+            searchResults.appendChild(resultItem);
+        });
+        
+        searchResults.style.display = 'block';
+    }
+
     // Cerrar resultados al hacer clic fuera
     document.addEventListener('click', function(e) {
-      if (!e.target.closest('.search-container')) {
-        searchResults.style.display = 'none';
-      }
+        if (!e.target.closest('.search-container')) {
+            searchResults.style.display = 'none';
+        }
+    });
+
+    // Búsqueda con Enter
+    search.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            applySearch(this.value);
+            searchResults.style.display = 'none';
+            this.blur(); // Quitar el foco del campo de búsqueda
+        }
+    });
+
+    // Restaurar vista normal al borrar la búsqueda
+    search.addEventListener('input', function() {
+        if (this.value.trim() === '') {
+            populate();
+            // Mostrar todas las secciones
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.style.display = 'block';
+            });
+        }
     });
   </script>
 
