@@ -1,0 +1,304 @@
+:root{
+  --bg:#0b0b0b;
+  --card:#0f0f0f;
+  --accent:#e50914; /* rojo */
+  --muted:#b3b3b3;
+  --white:#ffffff;
+  --glass: rgba(255,255,255,0.04);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter, system-ui, Arial, sans-serif;
+  background:linear-gradient(180deg,var(--bg),#070707);
+  color:var(--white);
+}
+body{min-width: 768px;}
+
+/* ====== NAVBAR ====== */
+.nav{position:fixed;top:0;left:0;right:0;height:64px;display:flex;align-items:center;gap:20px;padding:0 28px;background:linear-gradient(180deg, rgba(11,11,11,0.9), transparent);z-index:40}
+.logo{font-weight:800;letter-spacing:1px;color:var(--white);font-size:20px}
+.nav-links{display:flex;gap:18px;align-items:center;margin-left:20px}
+.nav-links a{color:var(--muted);text-decoration:none;font-weight:600;padding:8px 6px;border-radius:6px;transition:all .18s}
+.nav-links a:hover{color:var(--white);background:rgba(255,255,255,0.03)}
+.nav-right{margin-left:auto;display:flex;gap:12px;align-items:center}
+.search-input{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:8px;color:var(--white);width:220px;transition:all .2s}
+.search-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 12px rgba(229,9,20,0.12)}
+.icon-btn{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--card);border:1px solid rgba(255,255,255,0.02);cursor:pointer}
+
+/* ====== HERO / SLIDER ====== */
+.hero{height: 780px;min-height:450px;padding:90px 40px 40px;display:flex;align-items:flex-end;gap:28px;position:relative}
+.hero .backdrop{position:absolute;inset:0;background-size:cover;background-position:center;filter:brightness(0.35) blur(0.8px);z-index:-1;transition:background-image .6s ease}
+.hero-content{max-width:760px}
+.hero h1{font-size:62px;margin:0 0 12px;letter-spacing:2px}
+.meta{color:var(--muted);margin-bottom:18px}
+.hero p{color:var(--muted);max-width:680px;line-height:1.45}
+.hero-actions{margin-top:18px;display:flex;gap:12px}
+.btn{padding:12px 18px;border-radius:8px;font-weight:700;cursor:pointer;border:none; }
+.btn-play{background:var(--white);color:#000}
+.btn-add{background:transparent;border:1px solid rgba(255,255,255,0.09);color:var(--white)}
+
+/* slider dots */
+.dots{position:absolute;left:50%;transform:translateX(-50%);bottom:18px;display:flex;gap:8px}
+.dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.12);cursor:pointer;transition:all .18s}
+.dot.active{transform:scale(1.4);background:var(--white)}
+
+/* ====== Sections ====== */
+.section{padding:28px 28px 44px}
+.section h2{margin:0 0 14px;font-size:20px}
+.row{display:flex;gap:12px;overflow:auto;padding-bottom:6px}
+.row::-webkit-scrollbar{height:10px}
+.row::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.06);border-radius:8px}
+
+.card{width: 1020px;background:linear-gradient(180deg,var(--card), #0b0b0b);border-radius:8px;overflow:hidden;cursor:pointer;transition:transform .18s,box-shadow .18s;box-shadow:0 6px 18px rgba(0,0,0,0.5)}
+.card:hover{transform:translateY(-8px);box-shadow:0 18px 40px rgba(229,9,20,0.12); border-radius: 100pxx;}
+.poster{width: 100%;height:200px;background-size:cover;background-position:center}
+.card-info{padding:10px}
+.card-info h3{margin:0;font-size:15px}
+.card-info p{margin:6px 0 0;color:var(--muted);font-size:13px}
+
+/* ====== responsive ====== */
+@media (max-width:900px){
+  .hero {height: 760px}
+  .hero{padding:80px 20px 20px}
+  .hero h1{font-size:40px}
+  .poster{height:180px}
+  .search-input{width:140px}
+}
+@media (max-width:600px){
+  .nav{padding:0 12px}
+  .nav-links{display:none}
+  .hero{padding:76px 12px 12px}
+  .hero h1{font-size:32px}
+  .card{min-width:140px}
+}
+
+/* small animations */
+.fade-in{animation:fadeIn .6s ease both}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.p1 { 
+  width: 10px;
+  height: 10px;
+}
+
+.search-box {
+  background: var(--card-bg);
+  border: 1px solid #333;
+  color: var(--text-color);
+  padding: 6px 10px;
+  border-radius: 6px;
+  outline: none;
+  width: 200px;
+}
+
+/* ===================================================
+   NUEVO: MODO OSCURO / CLARO + ANIMACIÓN SUAVE
+=================================================== */
+
+/* Botón de cambio de tema */
+#themeToggle {
+  background: var(--accent);
+  border: none;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.3s, transform 0.2s;
+}
+#themeToggle:hover {
+  background: #b5070f;
+  transform: scale(1.05);
+}
+
+/* Transición suave entre modos */
+body {
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* ====== MODO CLARO ====== */
+body.light {
+  --bg:#f5f5f5;
+
+  --accent:#e50914;
+  --muted:#444;
+  --white:#000;
+  --glass: rgba(0,0,0,0.05);
+
+  background:linear-gradient(180deg,#ffffff,#e9e9e9);
+  color:var(--white);
+}
+
+
+
+body.light .nav-links a:hover {
+  background:rgba(0,0,0,0.06);
+}
+
+body.light .icon-btn {
+  background:#f2f2f2;
+  border:1px solid rgba(0,0,0,0.05);
+}
+
+body.light .card {
+  background:linear-gradient(180deg,#ffffff,#f0f0f0);
+  box-shadow:0 6px 18px rgba(0,0,0,0.1);
+}
+
+body.light .dot.active {
+  background:var(--accent);
+}
+
+body.light .btn-play {
+  background:#000;
+  color:#fff;
+}
+/*---------------------------modal---------------------*/
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+      transition: background 0.3s ease;
+    }
+
+    .modal-content {
+      background: #111;
+      color: #fff;
+      display: flex;
+      flex-direction: row;
+      gap: 1.5rem;
+      border-radius: 12px;
+
+      height: 90%;
+      width: 95%;
+      padding: 20px;
+      position: relative;
+      box-shadow: 0 0 20px rgba(255,255,255,0.1);
+      transition: background 0.4s ease, color 0.4s ease;
+    }
+
+    .modal img {
+      width: 100%;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    .modal-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .modal-info h2 {
+      font-size: 1.8em;
+      margin-bottom: 10px;
+      color: #f0f0f0;
+    }
+
+    .modal-info p {
+      font-size: 1em;
+      color: #ccc;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .modal-info small {
+      font-size: 0.9em;
+      color: #999;
+    }
+
+    .close {
+      position: absolute;
+      top: 10px; right: 15px;
+      font-size: 26px;
+      color: #fff;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+    .close:hover { color: #aaa; }
+
+    /* ====== Modal en modo claro ====== */
+    body.light .modal {
+      background: rgba(255,255,255,0.8);
+    }
+
+    body.light .modal-content {
+      background: #ffffff;
+      color: #000;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+
+    body.light .modal-info h2 {
+      color: #000;
+    }
+
+    body.light .modal-info p {
+      color: #444;
+    }
+
+    body.light .modal-info small {
+      color: #666;
+    }
+
+    body.light .close {
+      color: #000;
+    }
+.cart-panel {
+  position: fixed;
+  top: 0;
+  right: -400px;
+  width: 350px;
+  height: 100vh;
+  background: #111;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: right 0.3s ease;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.5);
+  z-index: 999;
+  padding: 1rem;
+}
+.cart-panel.open {
+  right: 0;
+}
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid gray;
+}
+.cart-items {
+  flex-grow: 1;
+  overflow-y: auto;
+  margin-top: 1rem;
+}
+.cart-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #333;
+  padding: 0.5rem 0;
+}
+.cart-item img {
+  width: 50px;
+  height: 20px;
+  border-radius: 6px;
+}
+.cart-footer {
+  border-top: 1px solid gray;
+  padding-top: 1rem;
+}
+.payment-methods img {
+  margin-right: 10px;
+  border-radius: 6px;
+}
